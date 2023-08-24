@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ColorConstants {
-  static const Color primaryColor = Color(0xffd4af37),
+  static const Color primaryColor = Color(0xFFf3ebfb),
       secondaryColor = Color(0xfff4f2f8),
       buttonColor = Color(0xffccc4d4),
       circleBgColor = Color(0xfff8e2aa),
-      lightPrimaryColor = Color(0xfffdfaef),
       dialPadBgColor = Color(0xfffdf0c5),
       whiteColor = Colors.white,
       blackColor = Colors.black,
@@ -36,5 +35,6 @@ class ColorConstants {
       cardBlueForeground = const Color(0xff0D73CF),
       cardPurpleForeground = const Color(0xff675DC6),
       cardOrangeBackground = const Color(0xffFCF3ED),
-      cardOrangeForeground = const Color(0xffF36C3B);
+      cardOrangeForeground = const Color(0xffF36C3B),
+      lightPrimaryColor = const Color(0xff9875DB).withOpacity(0.07);
 }

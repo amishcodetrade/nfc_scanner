@@ -29,9 +29,15 @@ class _AddUrlState extends State<AddUrl> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Url'),
-        elevation: 5,
+        title: const Text('Add Url',style: TextStyle(color: ColorConstants.blackColor)),
+        backgroundColor: ColorConstants.primaryColor,
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: ColorConstants.blackColor),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

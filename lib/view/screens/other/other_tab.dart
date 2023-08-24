@@ -22,8 +22,8 @@ class _OtherTabState extends State<OtherTab> {
   late final List<Widget Function(VoidCallback, VoidCallback)> _pageBuilders;
   final colors = [
     ColorConstants.cardBlueForeground,
-    ColorConstants.primaryColor,
-    ColorConstants.dialPadBgColor,
+    ColorConstants.casesBorderColor,
+    ColorConstants.greenColor,
   ];
 
   @override
@@ -66,7 +66,7 @@ class _OtherTabState extends State<OtherTab> {
                 ),
               ),
               Container(
-                color: Colors.redAccent,
+                color: ColorConstants.primaryColor,
                 height: 40,
                 width: MediaQuery.of(context).size.width,
                 child: Center(

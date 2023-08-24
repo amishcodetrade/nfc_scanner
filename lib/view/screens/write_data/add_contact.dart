@@ -1,10 +1,7 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
-import 'package:nfc_scanner/utils/constant/color_constants.dart';
 
-import '../../widget/app_outlined_buttons.dart';
 import '../../widget/outlined_text_form_field.dart';
 
 class AddContact extends StatefulWidget {
@@ -27,96 +24,39 @@ class _AddContactState extends State<AddContact> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Url'),
-        elevation: 5,
-        centerTitle: true,
+        title: const Text('Add contact'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: 50,
-            color: ColorConstants.casesBorderColor,
-            child: const Padding(
-              padding: EdgeInsets.only(left: 8.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.phone_in_talk_sharp,
-                    color: ColorConstants.whiteColor,
-                    size: 35,
-                  ),
-                  SizedBox(width: 5,),
-                  Text(
-                    "Enter your Phone Number ",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold,fontSize: 20),
-                  )
-                ],
-              ),
-            ),
+          OutlinedTextFormField(
+            controller: dataController,
+            autoValidateMode: AutovalidateMode.onUserInteraction,
+            hintText: '0123456789',
+            verticalPadding: 10,
+            maxLength: 10,
+            textInputAction: TextInputAction.done,
+            textInputType: TextInputType.number,
           ),
-
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  OutlinedTextFormField(
-                    controller: dataController,
-                    autoValidateMode: AutovalidateMode.onUserInteraction,
-                    hintText: '0123456789',
-                    verticalPadding: 10,
-                    maxLength: 10,
-                    textInputAction: TextInputAction.done,
-                    textInputType: TextInputType.number,
-                  ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: AppOutlinedIconButton(
-                            height: 40,
-                            width: MediaQuery.of(context).size.width ,
-                            icon: const Icon(Icons.cancel, size: 20),
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Text("Cancel"),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: AppOutlinedIconButton(
-                            height: 40,
-                            width: MediaQuery.of(context).size.width,
-                            icon: const Icon(Icons.verified, size: 20),
-                            onPressed: numberData,
-                            outlineColor: ColorConstants.casesBorderColor,
-                            child: const Text("Add Contact"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          ElevatedButton(
+            onPressed: numberData,
+            child: const Text("Add Contact"),
           ),
         ],
       ),
     );
   }
+
   void numberData() {
+    String data = dataController.text;
+    _writeToNfc(data);
+  }
+
+  Future<void> _writeToNfc(String data) async {
     NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
       var ndef = Ndef.from(tag);
-      String data = dataController.text;
       NdefMessage message = NdefMessage([
-        NdefRecord.createMime(
-            'text/plain', Uint8List.fromList(data.codeUnits)),
+        NdefRecord.createMime('text/plain', Uint8List.fromList(data.codeUnits)),
       ]);
       try {
         await ndef?.write(message);

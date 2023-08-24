@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import '../../../utils/constant/color_constants.dart';
+import '../../widget/custom_tab_bar.dart';
 import '../other/other_tab.dart';
 import '../read_data/read_nfc_data.dart';
 import '../write_data/write_nfc_data.dart';
@@ -10,15 +12,22 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final ValueNotifier<int> selectedTab = ValueNotifier(0);
+  late final List<Widget> widgetList;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-
-      _checkNfcAvailability();
+    widgetList = [ const ReadData(),
+      const WriteData(),
+      OtherTab(moveToReadTab: moveToReadTab, moveToWriteTab: moveToWriteTab),
+    ];
+    _checkNfcAvailability();
   }
 
   @override
@@ -32,34 +41,55 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NFC Scanner'),
-        elevation: 15,
+        title: const Text('NFC Scanner',style: TextStyle(color: ColorConstants.blackColor),),
         centerTitle: true,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Read Data'),
-            Tab(text: 'Write Data'),
-            Tab(text: 'Other'),
-          ],
-        ),
+        backgroundColor: ColorConstants.primaryColor,
+        // bottom: TabBar(
+        //   controller: _tabController,
+        //   tabs: const [
+        //     Tab(text: 'Read Data'),
+        //     Tab(text: 'Write Data'),
+        //     Tab(text: 'Other'),
+        //   ],
+        // ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          const ReadData(),
-          const WriteData(),
-          OtherTab(moveToReadTab: moveToReadTab,moveToWriteTab: moveToWriteTab),
+          Card(
+            elevation: 0.2,
+            child: CustomTabBar(
+              tabController: _tabController,
+              selectedTab: selectedTab,
+              tabList: const [
+                Text("Read Data"),
+                Text("Write Data"),
+                Text("Other"),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: selectedTab,
+              builder: (context, value, _) =>
+              widgetList[selectedTab.value],
+            ),
+          )
         ],
       ),
     );
   }
+
   void moveToReadTab() {
     _tabController.animateTo(0);
+    selectedTab.value = 0;
   }
+
   void moveToWriteTab() {
     _tabController.animateTo(1);
+    selectedTab.value = 1;
   }
+
   Future<void> _checkNfcAvailability() async {
     final isNfcAvailable = await NfcManager.instance.isAvailable();
     if (!isNfcAvailable) {
@@ -71,16 +101,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Enable NFC'),
-            content: const Text('Please first enable NFC in your device settings'),
+            content: const Text(
+                'Please first enable NFC in your device settings'),
             actions: [
               TextButton(
-                onPressed: () async{
+                onPressed: () async {
                   var isNfcOn = await NfcManager.instance.isAvailable();
-                  if(isNfcOn) {
+                  if (isNfcOn) {
                     isNfcEnabled = true;
                     // ignore: use_build_context_synchronously
                     Navigator.pop(context);
-                  }else{
+                  } else {
                     isNfcEnabled = false;
                   }
                 },

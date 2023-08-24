@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_scanner/utils/constant/color_constants.dart';
 
@@ -23,15 +24,20 @@ class _AddTextState extends State<AddText> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Text'),
-        elevation: 5,
+        title: const Text('Add Text',
+            style: TextStyle(color: ColorConstants.blackColor)),
         centerTitle: true,
+        backgroundColor: ColorConstants.primaryColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: ColorConstants.blackColor),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -49,17 +55,20 @@ class _AddTextState extends State<AddText> {
                     color: ColorConstants.whiteColor,
                     size: 35,
                   ),
-                  SizedBox(width: 5,),
+                  SizedBox(
+                    width: 5,
+                  ),
                   Text(
                     "Enter your Text ",
                     style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold,fontSize: 20),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
                   )
                 ],
               ),
             ),
           ),
-
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -112,15 +121,24 @@ class _AddTextState extends State<AddText> {
       ),
     );
   }
-  void textData() async{
-    await NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
-      String data = dataController.text;
-      NdefMessage message = NdefMessage([NdefRecord.createText(data)]);
-      await Ndef.from(tag)?.write(message);
-      Uint8List payload = message.records.first.payload;
-      String text = String.fromCharCodes(payload);
-      debugPrint("Written data: $text");
-      NfcManager.instance.stopSession();
-    });
+  Future<void> textData() async {
+    if (dataController.text.isNotEmpty) {
+      NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
+        try {
+          NdefMessage message =
+              NdefMessage([NdefRecord.createText(dataController.text)]);
+          await Ndef.from(tag)?.write(message);
+          Fluttertoast.showToast(msg: 'Data emitted successfully');
+          Uint8List payload = message.records.first.payload;
+          String text = String.fromCharCodes(payload);
+          debugPrint("Written data: $text");
+          NfcManager.instance.stopSession();
+        } catch (e) {
+          Fluttertoast.showToast(msg: 'Error emitting NFC data: $e');
+        }
+      });
+    } else {
+      Fluttertoast.showToast(msg: 'Please enter data to emit');
+    }
   }
 }
