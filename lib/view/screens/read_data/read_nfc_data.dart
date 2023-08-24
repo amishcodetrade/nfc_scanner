@@ -14,8 +14,6 @@ class _ReadDataState extends State<ReadData> {
   ValueNotifier<List<List<int>>> identifierNotifier = ValueNotifier([]);
   ValueNotifier<List<String>> userDetailsNotifier = ValueNotifier([]);
 
-  bool isNfcAvailable = false;
-
   @override
   void initState() {
     super.initState();
@@ -29,7 +27,6 @@ class _ReadDataState extends State<ReadData> {
       identifierNotifier.notifyListeners();
       _saveData();
     });
-    checkNfcAvailability();
   }
 
 
@@ -37,8 +34,7 @@ class _ReadDataState extends State<ReadData> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isNfcAvailable
-          ? ValueListenableBuilder(
+      body: ValueListenableBuilder(
               valueListenable: identifierNotifier,
               builder: (context, value, child) => Center(
                 child: identifierNotifier.value.isEmpty
@@ -105,18 +101,9 @@ class _ReadDataState extends State<ReadData> {
                       ),
               ),
             )
-          : const Center(
-              child: Text('NFC is not available.'),
-            ),
     );
   }
 
-  Future<void> checkNfcAvailability() async {
-    bool nfcAvailable = await NfcManager.instance.isAvailable();
-    setState(() {
-      isNfcAvailable = nfcAvailable;
-    });
-  }
 
   List<int> extractIdentifier(String tagData) {
     final identifierString = tagData.substring(

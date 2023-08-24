@@ -83,7 +83,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   }else{
                     isNfcEnabled = false;
                   }
-                  _checkNfcAvailability();
                 },
                 child: const Text('OK'),
               ),
