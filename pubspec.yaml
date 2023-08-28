@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   fluttertoast: ^8.2.2
   nfc_manager: ^3.3.0
+  geolocator: ^10.0.0
+  url_launcher: ^6.0.13
   cupertino_icons: ^1.0.2
   flutter_svg: ^2.0.1
   shared_preferences: ^2.2.0

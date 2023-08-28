@@ -124,6 +124,7 @@ class _AddTextState extends State<AddText> {
   Future<void> textData() async {
     if (dataController.text.isNotEmpty) {
       NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
+
         try {
           NdefMessage message =
               NdefMessage([NdefRecord.createText(dataController.text)]);
@@ -142,3 +143,4 @@ class _AddTextState extends State<AddText> {
     }
   }
 }
+

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../utils/constant/color_constants.dart';
@@ -14,23 +16,11 @@ class _ReadDataState extends State<ReadData> {
   ValueNotifier<List<List<int>>> identifierNotifier = ValueNotifier([]);
   ValueNotifier<List<List<int>>> payloadNotifier = ValueNotifier([]);
   ValueNotifier<List<String>> userDetailsNotifier = ValueNotifier([]);
-
   @override
   void initState() {
     super.initState();
     _loadData();
-    NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
-      userDetailsNotifier.value.add(tag.data.toString());
-      debugPrint(tag.data.toString());
-      List<int> identifier = extractIdentifier(tag.data.toString());
-      identifierNotifier.value.add(identifier);
-      List<int> payload = extractPayload(tag.data.toString());
-      payloadNotifier.value.add(payload);
-      debugPrint("ferfger $payloadNotifier");
-      // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
-      identifierNotifier.notifyListeners();
-      _saveData();
-    });
+    initial();
   }
 
   @override
@@ -109,11 +99,41 @@ class _ReadDataState extends State<ReadData> {
     ));
   }
 
+  initial(){
+    NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
+      bool serviceEnabled;
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Fluttertoast.showToast(msg: 'please keep your location on');
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        await Geolocator.requestPermission();
+      } else if (permission == LocationPermission.deniedForever) {
+        Fluttertoast.showToast(msg: 'location permission denied forever');
+      }
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      Fluttertoast.showToast(msg: 'Lat: ${position.latitude}, Long: ${position.longitude}');
+      userDetailsNotifier.value.add(tag.data.toString());
+      debugPrint(tag.data.toString());
+      List<int> identifier = extractIdentifier(tag.data.toString());
+      identifierNotifier.value.add(identifier);
+      List<int> payload = extractPayload(tag.data.toString());
+      payloadNotifier.value.add(payload);
+      debugPrint("payload  $payloadNotifier");
+      // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+      identifierNotifier.notifyListeners();
+      _saveData();
+    });
+  }
+
   List<int> extractPayload(String tagData) {
     final payloadStartIndex = tagData.indexOf("payload: [");
 
     // Check if payload data is found
-    if (payloadStartIndex == -1) {
+    if (payloadStartIndex ==   -1) {
       return []; // Payload data not available
     }
 
